@@ -6,11 +6,12 @@ import { withStyles } from '@material-ui/core/styles';
 import styles from '../../assets/mainStyles';
 
 import {
-  SummaryChart,
-  Balance,
-  Transfer,
+  Transactions,
+  CreditCards,
   MorningCalls,
+  SummaryChart,
   Tabs,
+  Transfer,
 } from '../../components';
 
 
@@ -25,8 +26,8 @@ function Home(props) {
   const [institution, setInstitution] = useState(null);
 
   const [morningCalls, setMorningCalls] = useState([]);
-  const [accountData, setAccountData] = useState({});
-  const [balances, setBalances] = useState({});
+  const [accounts, setAccounts] = useState([]);
+  const [balances, setBalances] = useState([]);
   const [transactions, setTransactions] = useState([]);
 
   const morningCallsMock = [
@@ -109,34 +110,22 @@ function Home(props) {
 
   useEffect(() => {
     // getAccessToken();
-    // getMorningCalls();
-    // getAccountData();
-    // getBalances();
-    getTransactions();
-    // transfer();
+    getAccountsV2();
+    getMorningCalls();
+  }, []);
+
+  useEffect(() => {
+    if (props.page === 'home')
+      getBalancesV2();
+    else if (props.page === 'transactions')
+      getTransactionsV2();
+
     // optin();
-  }, [])
-
-  // componentDidUpdate(prevProps) {
-  // 	if (!prevProps.projects.length && this.props.projects.length) {
-  // 		const cwid = localStorage.getItem('cwid');
-  // 		const sponsoredProjects = this.props.projects.filter(proj => proj.sponsor_id === cwid);
-  // 		this.setState({ sponsoredProjects })
-  // 	}
-  // }
-
-  const getAccessToken = async () => {
-    try {
-      const { data } = await api.post('/token');
-      return data;
-    }
-    catch (e) {
-      console.log(e)
-    }
-  }
+  }, [accounts])
 
   const getMorningCalls = async () => {
-    const token = await getAccessToken();
+    // const token = await getAccessToken();
+    const token = localStorage.getItem('token');
 
     try {
       if (token) {
@@ -153,8 +142,9 @@ function Home(props) {
     }
   }
 
-  const getAccountData = async () => {
-    const token = await getAccessToken();
+  const getAccountsData = async () => {
+    // const token = await getAccessToken();
+    const token = localStorage.getItem('token');
 
     try {
       if (token) {
@@ -176,7 +166,7 @@ function Home(props) {
           nickname: firstAccountData.Nickname,
         };
 
-        setAccountData(accountData);
+        // setAccountData(accountData);
       }
     }
     catch (e) {
@@ -184,8 +174,15 @@ function Home(props) {
     }
   }
 
+  const getAccountsV2 = async () => {
+    const accounts = JSON.parse(localStorage.getItem('banks'));
+    setAccounts(accounts);
+    console.log(accounts)
+  }
+
   const getBalances = async () => {
-    const token = await getAccessToken();
+    // const token = await getAccessToken();
+    const token = localStorage.getItem('token');
 
     try {
       if (token) {
@@ -195,19 +192,47 @@ function Home(props) {
 
         const { data } = await api.get('/balances/00711234511', { headers });
         console.log(data);
+        const balances = data.Data.Balance;
 
-        const firstBalanceData = data.Data.Balance[0];
-        const balance = {
-          accountId: firstBalanceData.AccountId,
-          amount: firstBalanceData.Amount.Amount,
-          currency: firstBalanceData.Amount.Currency,
-          creditDebit: firstBalanceData.CreditDebitIndicator,
-          creditLine: firstBalanceData.CreditLine,
-          datetime: firstBalanceData.Nickname,
-          type: firstBalanceData.Nickname,
+        // const balance = {
+        //   accountId: firstBalanceData.AccountId,
+        //   amount: firstBalanceData.Amount.Amount,
+        //   currency: firstBalanceData.Amount.Currency,
+        //   creditDebit: firstBalanceData.CreditDebitIndicator,
+        //   creditLine: firstBalanceData.CreditLine,
+        //   datetime: firstBalanceData.Nickname,
+        //   type: firstBalanceData.Nickname,
+        // };
+
+        setBalances(balances);
+      }
+    }
+    catch (e) {
+      console.log(e);
+    }
+  }
+
+
+  const getBalancesV2 = async () => {
+    // const token = await getAccessToken();
+    const token = localStorage.getItem('token');
+    const customerId = localStorage.getItem('customerId');
+
+    try {
+      if (token) {
+        const headers = {
+          authorization: `Bearer ${token}`
         };
 
-        setBalances(balance);
+        const { data } = await api.get(`/balancesdb/${customerId}`, { headers });
+
+        data.forEach(bal => {
+          const bank = accounts.filter(acc => acc.bank_account === bal.account_id)[0]
+          bal.bank_name = bank.bank_name;
+          bal.bank_id = bank.bank_id;
+        })
+
+        setBalances(data);
       }
     }
     catch (e) {
@@ -216,7 +241,8 @@ function Home(props) {
   }
 
   const getTransactions = async () => {
-    const token = await getAccessToken();
+    // const token = await getAccessToken();
+    const token = localStorage.getItem('token');
 
     try {
       if (token) {
@@ -235,15 +261,54 @@ function Home(props) {
     }
   }
 
-  const transfer = async () => {
-    const token = await getAccessToken();
+  const getTransactionsV2 = async () => {
+    // const token = await getAccessToken();
+    const token = localStorage.getItem('token');
+    const customerId = localStorage.getItem('customerId');
 
     try {
       if (token) {
         const headers = {
           authorization: `Bearer ${token}`
         };
+
+        const { data } = await api.get(`/transactionsdb/${customerId}`, { headers });
+        setTransactions(data);
+      }
+    }
+    catch (e) {
+      console.log(e);
+    }
+  }
+
+  const transfer = async (transferData) => {
+    // const token = await getAccessToken();
+    const token = localStorage.getItem('token');
+
+    try {
+      if (token) {
+        const headers = {
+          authorization: `Bearer ${token}`
+        };
+        console.log(transferData)
         const body = {
+          "Type": "TEF",
+          "TransactionInformation": transferData.description || '',
+          "DestinyAccount": {
+            "Bank": "422",
+            "Agency": transferData.agency,
+            "Id": transferData.account,
+            "Cpf": transferData.cpf,
+            "Name": transferData.fullName,
+            "Goal": "Credit"
+          },
+          "Amount": {
+            "Amount": transferData.value,
+            "Currency": "BRL"
+          }
+        }
+
+        const bodyMock = {
           "Type": "TEF",
           "TransactionInformation": "Mensalidade Academia",
           "DestinyAccount": {
@@ -270,7 +335,8 @@ function Home(props) {
   }
 
   const optin = async () => {
-    const token = await getAccessToken();
+    // const token = await getAccessToken();
+    const token = localStorage.getItem('token');
 
     try {
       if (token) {
@@ -307,31 +373,47 @@ function Home(props) {
     }
   }
 
+  const renderPageSection = () => {
+    if (props.page === 'home')
+      return (
+        <SummaryChart
+          accounts={accounts}
+          balances={balances}
+          institution={institution}
+        />
+      )
+    else if (props.page === 'transfer')
+      return (
+        <Transfer
+          transfer={transfer}
+        />
+      )
+    else if (props.page === 'creditCards')
+      return (
+        <CreditCards
+          institution={institution}
+        />
+      )
+    else if (props.page === 'transactions')
+      return (
+        <Transactions
+          accounts={accounts}
+          institution={institution}
+          transactions={transactions}
+        />
+      )
+  }
   return (
     <Grid container className={classes.rootDetails} justify="space-between">
       <Grid item xs={12}>
         <Tabs
           setInstitution={setInstitution}
+          institution={institution}
+          accounts={accounts}
         />
       </Grid>
       <Grid item xs={12} md={8}>
-        {
-          props.page === 'home' &&
-          <SummaryChart />
-        }
-        {
-          props.page === 'transfer' &&
-          <Transfer
-            transfer={transfer}
-          />
-        }
-        {
-          props.page === 'balance' &&
-          <Balance
-            transactions={transactions}
-            institution={institution}
-          />
-        }
+        {renderPageSection()}
       </Grid>
       <MorningCalls
         morningCalls={morningCalls}

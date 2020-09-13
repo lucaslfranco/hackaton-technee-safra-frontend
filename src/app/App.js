@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { HashRouter, Redirect, Route } from "react-router-dom";
-import Cookies from 'universal-cookie';
 
-import { config, stage } from '../config';
 import { api } from '../services';
 
 import Home from '../pages/Home';
@@ -10,7 +8,6 @@ import LoginPage from '../pages/LoginPage';
 
 import {
   Footer,
-  Topnav,
   Sidenav,
 } from '../components';
 
@@ -33,18 +30,20 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 class App extends Component {
 
   state = {
-    appLoaded: false,
     isAuthenticated: false,
     isLoaded: false,
-    page: 'transfer',
+    page: 'home',
+    userData: {
+      banks: []
+    },
   }
 
   constructor(props) {
     super(props);
 
-    this.refreshUserData = this.refreshUserData.bind(this);
     this.setAuthenticated = this.setAuthenticated.bind(this);
     this.setPage = this.setPage.bind(this);
+    this.setUserData = this.setUserData.bind(this);
 
     this.logout = this.logout.bind(this);
     this.closeModal = this.closeModal.bind(this);
@@ -55,29 +54,29 @@ class App extends Component {
   }
 
   async componentDidMount() {
+    const { userData } = this.state;
+    const customerId = localStorage.getItem('customerId');
+    const token = localStorage.getItem('token');
+
+    if (token && customerId)
+      this.setAuthenticated(true)
+    else
+      this.setAuthenticated(false)
+
+    // this.getAccessToken();
+  }
+
+  setUserData(userData) {
+    this.setState({ userData })
+  }
+
+  async getAccessToken() {
     try {
-      await this.refreshUserData();
+      const { data } = await api.post('/token');
+      localStorage.setItem('token', data)
     }
     catch (e) {
       console.log(e)
-    }
-    finally {
-      this.setState({
-        appLoaded: true,
-        isMobile: window.innerWidth < 600,
-        isTablet: window.innerWidth < 960
-      })
-    }
-  }
-
-  async refreshUserData() {
-    try {
-      const cwid = localStorage.getItem('cwid');
-
-      this.setAuthenticated(true);
-    }
-    catch (e) {
-      this.setAuthenticated(false);
     }
   }
 
@@ -90,13 +89,7 @@ class App extends Component {
   }
 
   logout() {
-    // Clear token cookie and localStorage then remove authentication
-    const cookies = new Cookies();
-    cookies.remove('token');
-
-    // localStorage.clear();
-    localStorage.removeItem('cwid');
-
+    localStorage.clear();
     this.setState({ isAuthenticated: false })
   }
 
@@ -110,10 +103,8 @@ class App extends Component {
 
   render() {
     const {
-      appLoaded,
       isAuthenticated,
       isLoaded,
-      isMobile,
       page,
 
       isOpenModal
@@ -123,25 +114,20 @@ class App extends Component {
       <HashRouter>
         <Route render={
           ({ location, history }) =>
-            isLoaded && appLoaded &&
+            isLoaded &&
             <React.Fragment>
               {
                 isAuthenticated &&
                 <Sidenav
+                logout={this.logout}
                   setPage={this.setPage}
                 />
-                // <Topnav
-                //   appLoaded={appLoaded}
-                //   logout={this.logout}
-                // />
               }
               <main className="app-main">
                 <PrivateRoute auth={isAuthenticated}
                   path="/home" exact
                   component={props =>
                     <Home
-                      isMobile={isMobile}
-                      appLoaded={appLoaded}
                       page={page}
                     />
                   }
@@ -149,7 +135,11 @@ class App extends Component {
                 <Route
                   path="/login" exact
                   component={props =>
-                    <LoginPage {...props} refreshUserData={this.refreshUserData} />
+                    <LoginPage
+                      {...props}
+                      setAuthenticated={this.setAuthenticated}
+                      setUserData={this.setUserData}
+                    />
                   }
                 />
               </main>

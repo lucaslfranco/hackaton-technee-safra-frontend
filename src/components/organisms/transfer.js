@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { withStyles } from '@material-ui/core/styles';
 import styles from '../../assets/mainStyles';
@@ -9,16 +9,22 @@ import {
 	Typography,
 	Button,
 	TextField,
-	Paper,
 	MenuItem,
 } from '@material-ui/core';
 
 function Transfer(props) {
 
-	const [transferData, setTransferData] = useState({});
+	const [targetBank, setTargetBank] = useState('422')
+	const [bankType, setBankType] = useState('')
+	const [agency, setAgency] = useState('0071')
+	const [account, setAccount] = useState('1234533')
+	const [cpf, setCPF] = useState('12345678933')
+	const [fullName, setFullName] = useState('Mark Zuckerberg da Silva')
+	const [value, setValue] = useState('250.00')
+	const [description, setDescription] = useState('Mensalidade Academia')
 
 	const institutions = [
-		{ label: 'Safra', value: 'safra' },
+		{ label: 'Safra', value: '422' },
 		{ label: 'Santander', value: 'santander' },
 		{ label: 'Itaú', value: 'itau' },
 		{ label: 'Bradesco', value: 'bradesco' },
@@ -26,6 +32,24 @@ function Transfer(props) {
 	];
 
 	const { classes } = props;
+
+	const submitTransfer = (e) => {
+		e.preventDefault();
+
+		const data = {
+			targetBank,
+			bankType,
+			agency,
+			account,
+			cpf,
+			fullName,
+			value,
+			description,
+		}
+
+		props.transfer(data);
+	}
+
 	return (
 		<Grid container justify="center" className={`${classes.container} ${classes.homeContainer}`}>
 			<Grid container justify="center">
@@ -33,19 +57,19 @@ function Transfer(props) {
 					Transferência
 				</Typography>
 			</Grid>
-			<Grid component={'form'} container item xs={4} justify="center" onSubmit={props.transfer}>
+			<Grid component={'form'} container item xs={4} justify="center" onSubmit={submitTransfer}>
 				<Box width={1} mt={1}>
 					<TextField
 						variant="outlined"
-						id="banco-target"
+						id="targetBank"
 						label="Banco de Destino"
-						name="banco-target"
-						autoComplete="banco-target"
+						name="targetBank"
+						autoComplete="targetBank"
 						size="small"
 						fullWidth
 						select
-						// value={username}
-						// onChange={({ target: { value } }) => setUsername(value)}
+						value={targetBank}
+						onChange={({ target: { value } }) => setTargetBank(value)}
 						required
 					>
 						{institutions.map((option) =>
@@ -58,15 +82,15 @@ function Transfer(props) {
 				<Box width={1} mt={2}>
 					<TextField
 						variant="outlined"
-						id="banco-target"
+						id="bankType"
 						label="Tipo de Conta"
-						name="banco-target"
-						autoComplete="banco-target"
+						name="bankType"
+						autoComplete="bankType"
 						size="small"
 						fullWidth
 						select
-						// value={username}
-						// onChange={({ target: { value } }) => setUsername(value)}
+						value={bankType}
+						onChange={({ target: { value } }) => setBankType(value)}
 						required
 					>
 						{institutions.map((option) =>
@@ -79,14 +103,14 @@ function Transfer(props) {
 				<Box width={1} mt={2}>
 					<TextField
 						variant="outlined"
-						id="email"
+						id="agency"
 						label="Agência"
-						name="email"
-						autoComplete="email"
+						name="agency"
+						autoComplete="agency"
 						size="small"
 						fullWidth
-						// value={username}
-						// onChange={({ target: { value } }) => setUsername(value)}
+						value={agency}
+						onChange={({ target: { value } }) => setAgency(value)}
 						required
 					/>
 				</Box>
@@ -99,26 +123,26 @@ function Transfer(props) {
 						autoComplete="account"
 						size="small"
 						fullWidth
-						// value={username}
-						// onChange={({ target: { value } }) => setUsername(value)}
+						value={account}
+						onChange={({ target: { value } }) => setAccount(value)}
 						required
 					/>
 				</Box>
 				<Box width={1} mt={2}>
 					<TextField
 						variant="outlined"
-						id="email"
+						id="cpf"
 						label="CPF"
-						name="email"
-						autoComplete="email"
+						name="cpf"
+						autoComplete="cpf"
 						size="small"
 						fullWidth
-						// value={username}
-						// onChange={({ target: { value } }) => setUsername(value)}
+						value={cpf}
+						onChange={({ target: { value } }) => setCPF(value)}
 						required
 					/>
 				</Box>
-				<Box width={1} mt={2} mb={4}>
+				<Box width={1} mt={2}>
 					<TextField
 						variant="outlined"
 						id="name"
@@ -127,9 +151,37 @@ function Transfer(props) {
 						autoComplete="name"
 						size="small"
 						fullWidth
-						// value={username}
-						// onChange={({ target: { value } }) => setUsername(value)}
+						value={fullName}
+						onChange={({ target: { value } }) => setFullName(value)}
 						required
+					/>
+				</Box>
+				<Box width={1} mt={2}>
+					<TextField
+						variant="outlined"
+						id="value"
+						label="Valor (R$)"
+						name="value"
+						autoComplete="value"
+						size="small"
+						type="number"
+						fullWidth
+						value={value}
+						onChange={({ target: { value } }) => setValue(value)}
+						required
+					/>
+				</Box>
+				<Box width={1} mt={2} mb={4}>
+					<TextField
+						variant="outlined"
+						id="description"
+						label="Descrição"
+						name="description"
+						autoComplete="description"
+						size="small"
+						fullWidth
+						value={description}
+						onChange={({ target: { value } }) => setDescription(value)}
 					/>
 				</Box>
 				<Grid item>

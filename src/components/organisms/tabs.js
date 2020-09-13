@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
-	Box,
-	Grid,
 	AppBar,
+	Box,
 	Tabs,
 	Tab,
 	Typography,
@@ -56,37 +55,62 @@ export default function ScrollableTabsButtonForce(props) {
 	const classes = useStyles();
 	const [value, setValue] = React.useState(0);
 
-	const handleChange = (event, newValue) => {
-		setValue(newValue);
-	};
-
 	const institutions = [
 		{
+			id: 6,
 			path: '/images/safra_logo.png',
-			label: 'BancoSafra',
+			label: 'Banco Safra S.A',
 			logoHeight: '65',
 		},
 		{
-			path: '/images/santander_logo.png',
-			label: 'Santander',
-			logoHeight: '65',
+			id: 1,
+			path: '/images/bb_logo.png',
+			label: 'Banco do Brasil',
+			logoHeight: '75',
 		},
 		{
-			path: '/images/itau_logo.png',
-			label: 'Itau',
-			logoHeight: '55',
-		},
-		{
+			id: 2,
 			path: '/images/bradesco_logo.png',
 			label: 'Bradesco',
 			logoHeight: '55',
 		},
 		{
+			id: 3,
+			path: '/images/nubank_logo.png',
+			label: 'Nubank',
+			logoHeight: '45',
+		},
+		{
+			id: 4,
+			path: '/images/itau_logo.png',
+			label: 'Itau',
+			logoHeight: '55',
+		},
+		{
+			id: 5,
+			path: '/images/santander_logo.png',
+			label: 'Santander',
+			logoHeight: '65',
+		},
+		{
+			id: 7,
 			path: '/images/barclays_logo.png',
 			label: 'Barclays',
 			logoHeight: '85',
 		},
 	]
+
+	const [userInstitutions, setUserInstitutions] = useState([]);
+
+	const handleChange = (event, newValue) => {
+		setValue(newValue);
+	};
+
+	useEffect(() => {
+		const accountsIds = props.accounts.map(acc => acc.bank_id);
+		const inst = institutions.filter(inst => accountsIds.includes(inst.id));
+		setUserInstitutions(inst);
+	}, [props.accounts]);
 
 	return (
 		<div className={classes.root}>
@@ -99,19 +123,21 @@ export default function ScrollableTabsButtonForce(props) {
 					indicatorColor="primary"
 					textColor="primary"
 					aria-label="scrollable force tabs"
-					elevation={2}
 				>
 					<Tab
-						icon={<img src='/images/safrahub_logo.png' height="70" />}
+						icon={<img src='/images/safrahub_logo.png' alt='SafraHub Logo' height="70" />}
 						{...a11yProps(0)}
+						style={{ opacity: (props.institution ? 0.4 : 1) }}
 						onClick={() => props.setInstitution(null)}
 					/>
 
-					{institutions.map((inst, i) =>
+					{userInstitutions.map((inst, i) =>
 						<Tab
-							icon={<img src={inst.path} height={inst.logoHeight} />}
+							key={inst.path}
+							icon={<img src={inst.path} alt={inst.label} height={inst.logoHeight} />}
 							{...a11yProps(i)}
-							onClick={() => props.setInstitution(inst.label)}
+							style={{ opacity: (props.institution === inst.id ? 1 : 0.4) }}
+							onClick={() => props.setInstitution(inst.id)}
 						/>
 					)}
 				</Tabs>
