@@ -1,112 +1,71 @@
-import React, { useState } from 'react';
-import Cookies from 'universal-cookie';
-
-import { Alert } from '../../components';
-
-import { stage } from '../../config';
-import { api } from '../../services';
-
-import { COLORS } from '../../assets/constants';
+import React, { useEffect, useState } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 
-import {
-	ProfileModal,
-} from '../../components';
+import { Alert } from '../../components';
+import { api } from '../../services';
+
+import { ProfileModal } from '../../components';
 
 import {
 	Box,
 	Button,
-	Checkbox,
-	CircularProgress,
 	CssBaseline,
-	FormControl,
-	FormControlLabel,
 	Grid,
-	IconButton,
-	OutlinedInput,
-	InputAdornment,
-	InputLabel,
-	Link,
-	Paper,
 	Snackbar,
 	TextField,
 	Typography
 } from '@material-ui/core';
 
-import {
-	Visibility,
-	VisibilityOff,
-} from '@material-ui/icons';
-
-function Copyright() {
-	return (
-		<Typography variant="body2" color="textSecondary" align="center">
-			{'Copyright © '}
-			<Link color="inherit" href="#">
-				SafraHub
-			</Link>
-			{' '}
-			{new Date().getFullYear()}
-			{'.'}
-		</Typography>
-	);
-}
+// function Copyright() {
+// 	return (
+// 		<Typography variant="body2" color="textSecondary" align="center">
+// 			{'Copyright © '}
+// 			<Link color="inherit" href="#">
+// 				SafraHub
+// 			</Link>
+// 			{' '}
+// 			{new Date().getFullYear()}
+// 			{'.'}
+// 		</Typography>
+// 	);
+// }
 
 export default function LoginPage(props) {
 	const classes = useStyles();
 
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
-	const [phone, setPhone] = useState('');
 
-	const [showPassword, setShowPassword] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
 	const [showRegister, setShowRegister] = useState(false);
 
 	const [open, setOpen] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
-	async function login(e) {
-		e.preventDefault();
+	const login = async (e) => {
+		if (e) e.preventDefault();
 
 		try {
-			setIsLoading(true);
-			let { data } = await api.post('/login', { username, password });
-			const userData = {
-				cwid: data.return.cwid,
-				email: data.return.email,
-				fullName: data.return.nameUser,
+			const body = {
+				id: username,
+				pwd: password
 			};
+			let { data } = await api.post('/validlogin', body);
 
-			const cookies = new Cookies();
-			cookies.set('token', data.token, { path: '/' });
-			cookies.set('user', userData, { path: '/' });
+			localStorage.setItem('customerName', data.customer_name);
+			localStorage.setItem('customerId', data.customer_id);
+			localStorage.setItem('token', data.token);
+			localStorage.setItem('banks', JSON.stringify(data.banks));
 
-			localStorage.setItem('cwid', userData.cwid.toUpperCase());
-			localStorage.setItem('firstName', userData.fullName.split(' ')[0]);
-			localStorage.setItem('fullName', userData.fullName);
-			localStorage.setItem('userEmail', userData.email);
+			delete data.token;
+			props.setUserData(data);
 
-			props.refreshUserData();
+			props.setAuthenticated(true);
 		}
-		catch ({ response: { data } }) {
-			if (data.result && (data.result.code === 2))
-				setErrorMessage('Usuário ou senha incorretos!');
-			else if (data.result && (data.result.code === 4))
-				setErrorMessage('Usuário inativo ou inválido!');
-			else if (data.result && (data.result.code === 14))
-				setErrorMessage('Usuário bloqueado!');
-			else
-				setErrorMessage('Erro ao realizar a autenticação');
-
-			console.log(errorMessage)
-
+		catch (e) {
+			setErrorMessage('Erro ao realizar a autenticação');
 			setOpen(true);
-			// props.setAuthenticated(false);
-		}
-		finally {
-			setIsLoading(false);
+			props.setAuthenticated(false);
 		}
 	}
 
@@ -116,6 +75,7 @@ export default function LoginPage(props) {
 
 	return (
 		<Grid container component="main" className={classes.root}>
+			{/* <button onClick={login}>asdasda</button> */}
 			<CssBaseline />
 			{/* <Grid container item xs={12} component={Paper} elevation={6} className={classes.loginContainer}> */}
 			<Grid container>
@@ -125,14 +85,14 @@ export default function LoginPage(props) {
 					</Grid>
 
 					<Grid item xs={12} md={6} style={{ display: 'flex', flexWrap: 'wrap' }}>
-						<Grid container>
+						<Grid container component={'form'} onSubmit={login}>
 							<Grid item xs={6} md={4} style={{ padding: 4 }}>
 								<TextField
 									variant="outlined"
-									id="email"
-									label="E-mail"
-									name="email"
-									autoComplete="email"
+									id="cpf"
+									label="CPF"
+									name="cpf"
+									autoComplete="cpf"
 									autoFocus
 									value={username}
 									onChange={({ target: { value } }) => setUsername(value)}
@@ -154,9 +114,8 @@ export default function LoginPage(props) {
 									label="Senha"
 									name="password"
 									autoComplete="password"
-									autoFocus
 									type="password"
-									value={username}
+									value={password}
 									onChange={({ target: { value } }) => setPassword(value)}
 									required
 								/>
@@ -179,13 +138,14 @@ export default function LoginPage(props) {
 
 				<Grid container>
 					<Typography component={Box} variant="h4" fontWeight="bold">
-						Sua vida financeira em um só lugar
+						Sua vida financeira em um só lugar!
 					</Typography>
 				</Grid>
 
 				<Grid container>
 					<Typography style={{ fontSize: 18, color: '#777' }}>
-						Sua vida financeira em um só lugarua vida <br /> financeira em um só lugar
+						A segurança que você já conhece com o conforto que você precisava para gerir
+					 <br /> seu patrimônio e fazer transações de forma otimizada e totalmente integrada!
 					</Typography>
 				</Grid>
 
@@ -194,119 +154,17 @@ export default function LoginPage(props) {
 						closeModal={closeModal}
 					/>
 				}
-
-				{false &&
-					<Grid item xs={8} sm={6} md={4} className={classes.paper}>
-						<form className={classes.full} onSubmit={login}>
-							<TextField
-								variant="outlined"
-								margin="normal"
-								id="email"
-								label="E-mail"
-								name="email"
-								autoComplete="email"
-								autoFocus
-								value={username}
-								onChange={({ target: { value } }) => setUsername(value)}
-								fullWidth
-								required
-							/>
-							{showRegister &&
-								<>
-									<TextField
-										variant="outlined"
-										margin="normal"
-										id="phone"
-										label="Nº de telefone"
-										name="phone"
-										autoComplete="Telefone"
-										autoFocus
-										value={phone}
-										onChange={({ target: { value } }) => setPhone(value)}
-										fullWidth
-										required
-									/>
-								</>
-							}
-							<FormControl className={classes.full} variant="outlined">
-								<InputLabel htmlFor="standard-adornment-password">
-									Senha *
-							</InputLabel>
-								<OutlinedInput
-									id="standard-adornment-password"
-									type={showPassword ? 'text' : 'password'}
-									value={password}
-									onChange={({ target: { value } }) => setPassword(value)}
-									required
-									endAdornment={
-										<InputAdornment position="end">
-											<IconButton
-												aria-label="toggle password visibility"
-												onClick={() => { setShowPassword(!showPassword) }}
-												onMouseDown={() => { }}
-												edge="end"
-											>
-												{showPassword ? <Visibility /> : <VisibilityOff />}
-											</IconButton>
-										</InputAdornment>
-									}
-									labelWidth={70}
-								/>
-							</FormControl>
-
-							{isLoading ?
-								<Grid item xs={12} align="center" style={{ marginTop: 16 }}>
-									<CircularProgress size={58} thickness={4} />
-								</Grid>
-								: (showRegister ?
-									<Button
-										type="submit"
-										fullWidth
-										variant="contained"
-										color="primary"
-										className={classes.submit}
-									>
-										Cadastrar
-								</Button> :
-									<Button
-										type="submit"
-										fullWidth
-										variant="contained"
-										color="primary"
-										className={classes.submit}
-									>
-										Entrar
-								</Button>
-								)
-							}
-
-							{showRegister ?
-								<Box onClick={() => setShowRegister(false)} align="center">
-									Já possui uma conta? Clique aqui para fazer login.
-						</Box> :
-								<Box onClick={() => setShowRegister(true)} align="center">
-									Ainda não possui uma conta? Clique aqui para fazer o cadastro.
-						</Box>
-							}
-
-							<Box mt={3}>
-								<Copyright />
-							</Box>
-						</form>
-
-						<Snackbar
-							anchorOrigin={{
-								vertical: 'top',
-								horizontal: 'right',
-							}}
-							open={open}
-							autoHideDuration={5000}
-							onClose={() => setOpen(false)}
-						>
-							<Alert severity="error">{errorMessage}</Alert>
-						</Snackbar>
-					</Grid>
-				}
+				<Snackbar
+					anchorOrigin={{
+						vertical: 'top',
+						horizontal: 'right',
+					}}
+					open={open}
+					autoHideDuration={5000}
+					onClose={() => setOpen(false)}
+				>
+					<Alert severity="error">{errorMessage}</Alert>
+				</Snackbar>
 			</Grid>
 		</Grid>
 	);

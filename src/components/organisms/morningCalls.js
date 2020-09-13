@@ -7,7 +7,6 @@ import {
 	Box,
 	Grid,
 	Typography,
-	Paper,
 } from '@material-ui/core';
 
 import {
