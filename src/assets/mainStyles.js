@@ -216,9 +216,13 @@ const styles = theme => ({
 		margin: theme.spacing(1, 0),
 		padding: theme.spacing(2),
 		color: 'white',
+		cursor: 'pointer',
 		borderRadius: theme.spacing(0.35),
-		'&.indicatorBalance': {
+		'&.indicatorGold': {
 			backgroundColor: '#CCAE68',
+		},
+		'&.indicatorBlue': {
+			backgroundColor: '#262E58',
 		},
 		'& .indicatorHint': {
 			display: 'none',
