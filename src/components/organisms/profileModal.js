@@ -55,7 +55,6 @@ function ProfileModal(props) {
 			return;
 		}
 		console.log('Sucesso')
-
 	}
 
 	return (
@@ -156,7 +155,7 @@ function ProfileModal(props) {
 							/>
 						</Box>
 						<FormControlLabel
-							control={<Checkbox value="remember" color="primary" />}
+							control={<Checkbox value="remember" color="primary" required />}
 							label={<Box style={{ fontSize: 13 }}>Declaro que li e aceito os termos de uso</Box>}
 						/>
 						<Box width={1} mt={2}>
