@@ -4,9 +4,11 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import {
 	AppBar,
+	Box,
 	CssBaseline,
 	Divider,
 	Drawer,
+	Grid,
 	IconButton,
 	List,
 	ListItem,
@@ -19,11 +21,12 @@ import {
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 import HomeIcon from '@material-ui/icons/Home';
 import ListIcon from '@material-ui/icons/List';
-import PaymentIcon from '@material-ui/icons/Payment';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import PaymentIcon from '@material-ui/icons/Payment';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 const drawerWidth = 240;
@@ -92,6 +95,8 @@ const useStyles = makeStyles((theme) => ({
 export default function Sidenav(props) {
 	const classes = useStyles();
 	const theme = useTheme();
+	let firstName = localStorage.getItem('customerName');
+	firstName = firstName.split(' ')[0];
 	const [open, setOpen] = React.useState(false);
 
 	const handleDrawerOpen = () => {
@@ -126,12 +131,33 @@ export default function Sidenav(props) {
 					>
 						<MenuIcon />
 					</IconButton>
-					<Typography variant="h6" noWrap>
-						Olá, Lucas Franco
-         			 </Typography>
-					{/* <img src="/images/safrahub_logo.png" alt="SafraHub logo" height="60" /> */}
+					<Grid container item justify="space-between" alignItems="center">
+						<Typography variant="h6" noWrap>
+							Olá, {firstName || ''}
+						</Typography>
+						<Grid item style={{ display: 'flex', jusfify: "flex-end", alignItems: "center" }}>
+							<Box mr={1}>
+								<img src="/images/brazil_flag.png" alt="Brazil flag" height="35" />
+							</Box>
+							<Box mr={1}>
+								<img src="/images/spain_flag.png" alt="Spain flag" height="35" />
+							</Box>
+							<Box mr={1}>
+								<img src="/images/us_flag.png" alt="US flag" height="40" />
+							</Box>
+							<IconButton
+								color="inherit"
+								aria-label="logout"
+								onClick={props.logout}
+								edge="end"
+								className={clsx(classes.menuButton, open && classes.hide)}
+							>
+								<ExitToAppIcon />
+							</IconButton>
+						</Grid>
+					</Grid>
 				</Toolbar>
-			</AppBar>
+			</AppBar >
 			<Drawer
 				className={classes.drawer}
 				variant="persistent"
@@ -152,13 +178,17 @@ export default function Sidenav(props) {
 						<ListItemIcon style={{ color: 'white' }}><HomeIcon /></ListItemIcon>
 						<ListItemText primary={'Página Inicial'} />
 					</ListItem>
-					<ListItem button key={'Extrato'} onClick={() => changePage('balance')}>
+					<ListItem button key={'Extrato'} onClick={() => changePage('transactions')}>
 						<ListItemIcon style={{ color: 'white' }}><ListIcon /></ListItemIcon>
 						<ListItemText primary={'Extrato'} />
 					</ListItem>
-					<ListItem button key={'Transferências'} onClick={() => changePage('transfer')}>
+					<ListItem button key={'Transferência'} onClick={() => changePage('transfer')}>
+						<ListItemIcon style={{ color: 'white' }}><AttachMoneyIcon /></ListItemIcon>
+						<ListItemText primary={'Transferência'} />
+					</ListItem>
+					<ListItem button key={'Cartões de Crédito'} onClick={() => changePage('creditCards')}>
 						<ListItemIcon style={{ color: 'white' }}><PaymentIcon /></ListItemIcon>
-						<ListItemText primary={'Transferências'} />
+						<ListItemText primary={'Cartões de Crédito'} />
 					</ListItem>
 					<ListItem button key={'Outros Serviços'} onClick={() => changePage('others')}>
 						<ListItemIcon style={{ color: 'white' }}> <MoreVertIcon /> </ListItemIcon>
@@ -175,6 +205,6 @@ export default function Sidenav(props) {
 					))}
 				</List> */}
 			</Drawer>
-		</div>
+		</div >
 	);
 }
