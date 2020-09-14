@@ -34,8 +34,8 @@ import {
 export default function LoginPage(props) {
 	const classes = useStyles();
 
-	const [username, setUsername] = useState('');
-	const [password, setPassword] = useState('');
+	const [username, setUsername] = useState('64809677559');
+	const [password, setPassword] = useState('dKORMK876i');
 
 	const [showRegister, setShowRegister] = useState(false);
 
@@ -144,8 +144,8 @@ export default function LoginPage(props) {
 
 				<Grid container>
 					<Typography style={{ fontSize: 18, color: '#777' }}>
-						A segurança que você já conhece com o conforto que você precisava para gerir
-					 <br /> seu patrimônio e fazer transações de forma otimizada e totalmente integrada!
+						A segurança que você já conhece com o conforto que você precisava  <br />
+						para gerir seu patrimônio e fazer transações de forma otimizada e totalmente integrada!
 					</Typography>
 				</Grid>
 

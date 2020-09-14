@@ -391,6 +391,7 @@ function Home(props) {
     else if (props.page === 'creditCards')
       return (
         <CreditCards
+          accounts={accounts}
           institution={institution}
         />
       )

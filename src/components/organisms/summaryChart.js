@@ -132,6 +132,7 @@ function SummaryChart({ classes, accounts, balances, institution }) {
         <Chart
           balances={filteredBalances}
           showInvestChart={showInvestChart}
+          currency='R$'
         />
       </Grid>
 
@@ -218,6 +219,7 @@ function SummaryChart({ classes, accounts, balances, institution }) {
           <Chart
             balances={foreignBalances}
             showInvestChart={showInvestChart}
+            currency='£'
           />
         </Grid>
       }

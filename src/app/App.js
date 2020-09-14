@@ -54,7 +54,6 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    const { userData } = this.state;
     const customerId = localStorage.getItem('customerId');
     const token = localStorage.getItem('token');
 

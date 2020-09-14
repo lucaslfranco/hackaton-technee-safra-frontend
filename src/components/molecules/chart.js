@@ -3,26 +3,49 @@ import { Bar, Doughnut } from 'react-chartjs-2';
 
 import { Grid } from '@material-ui/core';
 
-export default function Chart({ balances, showInvestChart }) {
+export default function Chart({ balances, currency, showInvestChart }) {
   let [data, setData] = useState({});
-  let [options, setOptions] = useState({
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [{
-        gridLines: {
-          display: false
-        }
-      }],
-      yAxes: [{
-        gridLines: {
-          display: false
+  let options = {
+    // maintainAspectRatio: false,
+    legend: {
+      position: 'right',
+    },
+    layout: {
+      padding: {
+        top: 20,
+      }
+    },
+    tooltips: {
+      callbacks: {
+        title: function (tooltipItem, data) {
+          return data['labels'][tooltipItem[0]['index']];
         },
-        ticks: {
-          beginAtZero: true
-        }
-      }],
-    }
-  });
+        label: function (tooltipItem, data) {
+          var dataset = data['datasets'][0];
+          const metaIndex = Object.keys(dataset['_meta'])[0];
+          var percent = Math.round((dataset['data'][tooltipItem['index']] / dataset["_meta"][metaIndex]['total']) * 100)
+          return ` ${currency} ${dataset['data'][tooltipItem['index']]} (${percent}%)`;
+        },
+        // afterLabel: function (tooltipItem, data) {
+        // }
+      }
+    },
+    // scales: {
+    //   xAxes: [{
+    //     gridLines: {
+    //       display: false
+    //     }
+    //   }],
+    //   yAxes: [{
+    //     gridLines: {
+    //       display: false
+    //     },
+    //     ticks: {
+    //       beginAtZero: false
+    //     }
+    //   }],
+    // }
+  };
 
   const investData = {
     labels: [
@@ -45,18 +68,6 @@ export default function Chart({ balances, showInvestChart }) {
     }],
   }
 
-  const investOptions = {
-    legend: {
-      position: 'right',
-    },
-    layout: {
-      padding: {
-        top: 20,
-      }
-    }
-
-  };
-
   const setChartData = () => {
     // const labels = [1, 1, 1, 2, 2];
     // const data = [1, 2, 3, 4, 5];
@@ -69,7 +80,6 @@ export default function Chart({ balances, showInvestChart }) {
         {
           label: 'Saldo (R$)',
           backgroundColor: 'rgba(100,100,120,0.8)',
-          // borderColor: 'rgba(255,99,132,1)',
           borderWidth: 1,
           data,
           maxBarThickness: 80,
@@ -81,7 +91,6 @@ export default function Chart({ balances, showInvestChart }) {
   }
 
   useEffect(() => {
-    console.log('sa')
     if (!showInvestChart) {
       setChartData();
     }
@@ -93,16 +102,15 @@ export default function Chart({ balances, showInvestChart }) {
         {showInvestChart
           ? <Doughnut
             data={investData}
-            options={investOptions}
+            options={options}
             width={350}
             height={120}
           />
-          : <Bar
+          : <Doughnut
             data={data}
-            width={350}
-            height={300}
-            style={{ padding: 20 }}
             options={options}
+            width={350}
+            height={120}
           />
         }
 

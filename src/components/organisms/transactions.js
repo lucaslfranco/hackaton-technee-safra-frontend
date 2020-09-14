@@ -119,10 +119,10 @@ function Transactions(props) {
 						display={'flex'}
 					>
 						<Grid item xs={2}>
-							<Typography align="left">	{item.transaction_date} </Typography>
+							<Typography align="left"> {item.transaction_date} </Typography>
 						</Grid>
 						<Grid item xs={2}>
-							<Typography align="center">	R$ {item.account_id} </Typography>
+							<Typography align="center"> {item.account_id} </Typography>
 						</Grid>
 						<Grid item xs={4}>
 							<Typography align="center">{item.transaction_description} </Typography>

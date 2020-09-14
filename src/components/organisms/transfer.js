@@ -22,6 +22,7 @@ function Transfer(props) {
 	const [fullName, setFullName] = useState('Mark Zuckerberg da Silva')
 	const [value, setValue] = useState('250.00')
 	const [description, setDescription] = useState('Mensalidade Academia')
+	const [password, setPassword] = useState('password')
 
 	const institutions = [
 		{ label: 'Safra', value: '422' },
@@ -171,7 +172,7 @@ function Transfer(props) {
 						required
 					/>
 				</Box>
-				<Box width={1} mt={2} mb={4}>
+				<Box width={1} mt={2}>
 					<TextField
 						variant="outlined"
 						id="description"
@@ -182,6 +183,20 @@ function Transfer(props) {
 						fullWidth
 						value={description}
 						onChange={({ target: { value } }) => setDescription(value)}
+					/>
+				</Box>
+				<Box width={1} mt={2} mb={4}>
+					<TextField
+						variant="outlined"
+						id="password"
+						label="Senha"
+						name="password"
+						autoComplete="password"
+						size="small"
+						type="password"
+						fullWidth
+						value={password}
+						onChange={({ target: { value } }) => setPassword(value)}
 					/>
 				</Box>
 				<Grid item>
