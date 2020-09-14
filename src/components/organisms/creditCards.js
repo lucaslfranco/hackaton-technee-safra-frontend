@@ -15,28 +15,44 @@ import {
 
 import PaymentIcon from '@material-ui/icons/Payment';
 
-function CreditCards(props) {
-	const { classes } = props;
-
+function CreditCards({ classes, accounts, institution }) {
 	const [selectedCard, setSelectedCard] = useState(0);
 	const [filteredCards, setFilteredCards] = useState([]);
-	const cards = [
-		{ bankCode: 6, bank: 'Banco Safra S.A', type: 'Visa', number: 'XXXX XXXX XXXX 1234', limit: 100000, currentUse: 55000, available: 45000 },
-		{ bankCode: 5, bank: 'Santander', type: 'MasterCard', number: 'XYXY XYXY XYXY 9876', limit: 80000, currentUse: 20000, available: 60000 },
-	];
+	const [cards, setCards] = useState([]);
+
 	const [totalLimit, setTotalLimit] = useState(0);
 
 	useEffect(() => {
+		console.log(accounts);
+		const cards = [
+			{
+				bankCode: accounts[0]?.bank_id || 6, bank: 'Banco Safra S.A', type: 'Visa', number: 'XXXX XXXX XXXX 1234',
+				limit: 100000, currentUse: 55000, available: 45000
+			},
+			{
+				bankCode: accounts[1]?.bank_id || 5, bank: 'Santander', type: 'MasterCard', number: 'XYXY XYXY XYXY 9876',
+				limit: 80000, currentUse: 20000, available: 60000
+			},
+		];
+
+		setCards(cards);
+		filterCards();
+	}, [accounts]);
+
+	useEffect(() => {
+		filterCards();
+	}, [institution])
+
+	const filterCards = () => {
 		let filteredCards = cards;
-		if (props.institution)
-			filteredCards = cards.filter(card => card.bankCode === props.institution);
+		if (institution)
+			filteredCards = cards.filter(card => card.bankCode === institution);
 
 		setTotalLimit(filteredCards.reduce((a, b) => a + (b['limit'] || 0), 0));
 		setFilteredCards(filteredCards);
-	}, [props.institution])
+	}
 
 	const getProgress = () => {
-		console.log('Progress')
 		const card = cards[selectedCard];
 		return 100 * card.currentUse / card.limit;
 	}
@@ -95,19 +111,23 @@ function CreditCards(props) {
 						<Typography variant="h6" className="title" align="center" style={{ fontSize: 20 }}>Limite</Typography>
 					</Box>
 
-					<LinearProgress
-						variant="determinate"
-						value={getProgress()}
-						style={{ width: '100%', marginBottom: 4, height: 8, borderRadius: 2 }}
-					/>
-					<Grid container justify="space-between">
-						<Typography align="center" style={{ fontWeight: 'bold' }}>
-							Utilizado <br /> {formatter.format(cards[selectedCard].currentUse)}
-						</Typography>
-						<Typography align="center" style={{ fontWeight: 'bold' }}>
-							Disponível <br /> {formatter.format(cards[selectedCard].available)}
-						</Typography>
-					</Grid>
+					{cards.length > 0 &&
+						<>
+							<LinearProgress
+								variant="determinate"
+								value={getProgress()}
+								style={{ width: '100%', marginBottom: 4, height: 8, borderRadius: 2 }}
+							/>
+							<Grid container justify="space-between">
+								<Typography align="center" style={{ fontWeight: 'bold' }}>
+									Utilizado <br /> {formatter.format(cards[selectedCard].currentUse)}
+								</Typography>
+								<Typography align="center" style={{ fontWeight: 'bold' }}>
+									Disponível <br /> {formatter.format(cards[selectedCard].available)}
+								</Typography>
+							</Grid>
+						</>
+					}
 				</Grid>
 			</Grid>
 		</Grid >
