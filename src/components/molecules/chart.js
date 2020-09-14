@@ -79,8 +79,16 @@ export default function Chart({ balances, currency, showInvestChart }) {
       datasets: [
         {
           label: 'Saldo (R$)',
-          backgroundColor: 'rgba(100,100,120,0.8)',
-          borderWidth: 1,
+          backgroundColor: [
+            'rgba(100,140,180,0.8)',
+            'rgba(100,100,120,0.8)',
+            'rgba(160,80,120,0.8)',
+          ],
+          hoverBackgroundColor: [
+            'rgba(100,140,180,1)',
+            'rgba(100,100,120,1)',
+            'rgba(160,80,120,1)',
+          ],
           data,
           maxBarThickness: 80,
         }
